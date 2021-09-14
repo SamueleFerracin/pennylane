@@ -38,7 +38,8 @@ parametric_qubit_labels = {
 matrix_ops_labels = {
     'QubitUnitary': 'U',
     'ControlledQubitUnitary': 'U',
-    'DiagonalQubitUnitary': 'U'
+    'DiagonalQubitUnitary': 'U',
+    'Hermitian': 'H0'
 }
 
 arithmetic_ops_labels = {

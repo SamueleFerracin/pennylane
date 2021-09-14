@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pennylane import Projector
 from pennylane.math import shape
+from pennylane.operation import ObservableReturnTypes
 
 from .gate_label_data import label_dict
 
@@ -26,6 +28,9 @@ def gate_label(op, include_parameters=False, decimal_places=2):
     Keyword Args:
         include_parameters=False (Bool): Whether or not to include parameters in label
         decimal_places=2 (Int): If parameters are included, how many decimals to include
+
+    Returns:
+        str
     """
     base = label_dict.get(op.base_name, op.base_name)
     
@@ -45,7 +50,30 @@ def gate_label(op, include_parameters=False, decimal_places=2):
         # don't print if matrix parameter
         if len(shape(params[0])) != 0:
             return base+end
-        return base+f'({params[0]:.{decimal_places}})'+end
+        return base+f'({params[0]:.{decimal_places}f})'+end
 
-    param_string = ",".join(f"{p:.{decimal_places}}" for p in params)
+    param_string = ",".join(f"{p:.{decimal_places}f}" for p in params)
     return f"{base}({param_string}){end}"
+
+
+def measurement_label(obs):
+    """Produces a label for a measurement.
+    
+    Args:
+        obs (~.measure.MeasurementProcess)
+    
+    Returns:
+        str
+    """
+    if obs.return_type == ObservableReturnTypes.Expectation:
+        if isinstance(obs.obs, Projector):
+            state = obs.obs.parameters[0]
+            state_str = "".join([f"{int(i)}" for i in state])
+            return f"|{state_str}⟩⟨{state_str}|"
+
+        name = label_dict.get(obs.obs.name, obs.obs.name)
+        return f"⟨{name}⟩"
+    if obs.return_type == ObservableReturnTypes.Variance:
+        name = label_dict.get(obs.obs.name, obs.obs.name)
+        return f"Var[{name}]"
+    return obs.return_type.name
