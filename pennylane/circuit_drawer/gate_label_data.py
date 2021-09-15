@@ -63,6 +63,14 @@ cv_labels = {
     "P": "p",
 }
 
+cv_observables = {
+    "NumberOperator": "n",
+    "TensorN": "n",
+    "P": "p̂",
+    "X": "x", 
+    "QuadOperator": "xϕ"
+}
+
 label_dicts_list= [non_parametric_qubit_labels, parametric_qubit_labels, matrix_ops_labels,
                arithmetic_ops_labels, cv_labels]
 

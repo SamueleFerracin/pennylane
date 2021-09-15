@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pennylane import Projector
+import pennylane as qml
+
 from pennylane.math import shape
 from pennylane.operation import ObservableReturnTypes
 
@@ -66,10 +67,16 @@ def measurement_label(obs):
         str
     """
     if obs.return_type == ObservableReturnTypes.Expectation:
-        if isinstance(obs.obs, Projector):
+        if isinstance(obs.obs, qml.Projector):
             state = obs.obs.parameters[0]
             state_str = "".join([f"{int(i)}" for i in state])
             return f"|{state_str}⟩⟨{state_str}|"
+
+        if isinstance(obs.obs, qml.FockStateProjector):
+            n = obs.obs.data[0]
+            return f"|{n}⟩⟨{n}|"
+
+        return "⟨n⟩"
 
         name = label_dict.get(obs.obs.name, obs.obs.name)
         return f"⟨{name}⟩"
