@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+"""
 import pytest
 
 import pennylane as qml
@@ -54,3 +54,5 @@ def test_decimals(decimals, expected):
     out = gate_label(qml.RX(1.23456, wires=0), include_parameters=True, decimal_places=decimals)
 
     assert out == f"RX({expected})"
+
+"""

@@ -19,7 +19,7 @@ import numpy as np
 import pennylane as qml
 
 from .charsets import UnicodeCharSet
-from .gate_label_data import label_dict
+
 
 class RepresentationResolver:
     """Resolves the string representation of PennyLane objects.
@@ -34,6 +34,41 @@ class RepresentationResolver:
         self.unitary_matrix_cache = []
         self.hermitian_matrix_cache = []
 
+    # Symbol for uncontrolled wires
+    resolution_dict = {
+        "PauliX": "X",
+        "CNOT": "X",
+        "Toffoli": "X",
+        "CSWAP": "SWAP",
+        "PauliY": "Y",
+        "PauliZ": "Z",
+        "CY": "Y",
+        "CZ": "Z",
+        "Identity": "I",
+        "Hadamard": "H",
+        "MultiRZ": "RZ",
+        "CRX": "RX",
+        "CRY": "RY",
+        "CRZ": "RZ",
+        "CRot": "Rot",
+        "PhaseShift": "Rϕ",
+        "Beamsplitter": "BS",
+        "Squeezing": "S",
+        "TwoModeSqueezing": "S",
+        "Displacement": "D",
+        "NumberOperator": "n",
+        "Rotation": "R",
+        "ControlledAddition": "X",
+        "ControlledPhase": "Z",
+        "ThermalState": "Thermal",
+        "GaussianState": "Gaussian",
+        "QuadraticPhase": "P",
+        "CubicPhase": "V",
+        "X": "x",
+        "P": "p",
+    }
+    """Symbol used for uncontrolled wires."""
+
     control_wire_dict = {
         "CNOT": [0],
         "Toffoli": [0, 1],
@@ -42,6 +77,7 @@ class RepresentationResolver:
         "CRY": [0],
         "CRZ": [0],
         "CRot": [0],
+        "CY": [0],
         "CZ": [0],
         "ControlledAddition": [0],
         "ControlledPhase": [0],
@@ -313,8 +349,8 @@ class RepresentationResolver:
         name = base_name
 
         # Use a shorter name if applicable
-        if name in label_dict:
-            name = label_dict[name]
+        if name in RepresentationResolver.resolution_dict:
+            name = RepresentationResolver.resolution_dict[name]
 
         # Display a control symbol for all controlling qubits of a controlled Operation
         if base_name in self.control_wire_dict and wire in [

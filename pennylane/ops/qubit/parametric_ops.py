@@ -206,6 +206,7 @@ class PhaseShift(DiagonalOperation):
     basis = "Z"
     grad_method = "A"
     generator = [np.array([[0, 0], [0, 1]]), 1]
+    label = "Rϕ",
 
     @classmethod
     def _matrix(cls, *params):
@@ -264,6 +265,7 @@ class ControlledPhaseShift(DiagonalOperation):
     basis = "Z"
     grad_method = "A"
     generator = [np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]]), 1]
+    label = "Rϕ"
 
     @classmethod
     def _matrix(cls, *params):
@@ -400,6 +402,7 @@ class MultiRZ(DiagonalOperation):
     num_wires = AnyWires
     par_domain = "R"
     grad_method = "A"
+    label = "RZ"
 
     @classmethod
     def _matrix(cls, theta, n):
@@ -701,6 +704,7 @@ class CRX(Operation):
     basis = "X"
     grad_method = "A"
     grad_recipe = four_term_grad_recipe
+    label = "RX"
 
     generator = [
         np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]),
@@ -779,6 +783,7 @@ class CRY(Operation):
     basis = "Y"
     grad_method = "A"
     grad_recipe = four_term_grad_recipe
+    label = "RY"
 
     generator = [
         np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, -1j], [0, 0, 1j, 0]]),
@@ -858,6 +863,7 @@ class CRZ(DiagonalOperation):
     basis = "Z"
     grad_method = "A"
     grad_recipe = four_term_grad_recipe
+    label = "RZ"
 
     generator = [
         np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]]),
@@ -948,6 +954,7 @@ class CRot(Operation):
     par_domain = "R"
     grad_method = "A"
     grad_recipe = four_term_grad_recipe * 3
+    label = "Rot"
 
     @classmethod
     def _matrix(cls, *params):

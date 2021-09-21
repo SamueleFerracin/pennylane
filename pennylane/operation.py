@@ -415,6 +415,15 @@ class Operator(abc.ABC):
         return self._name
 
     @property
+    def label(self):
+        """How the operator is represented in diagrams and drawings."""
+        return self._label
+
+    @label.setter
+    def label(self, new_label):
+        self._label = new_label
+
+    @property
     def id(self):
         """String for the ID of the operator."""
         return self._id
@@ -426,6 +435,7 @@ class Operator(abc.ABC):
     def __init__(self, *params, wires=None, do_queue=True, id=None):
         # pylint: disable=too-many-branches
         self._name = self.__class__.__name__  #: str: name of the operator
+        self._label = self.__class__.__name__  #: str: used for diagrams and drawing
         self._id = id
         self.queue_idx = None  #: int, None: index of the Operator in the circuit queue, or None if not in a queue
 

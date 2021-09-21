@@ -100,6 +100,7 @@ class Rotation(CVOperation):
     num_params = 1
     par_domain = "R"
     grad_method = "A"
+    label = "R"
 
     @staticmethod
     def _heisenberg_rep(p):
@@ -142,6 +143,7 @@ class Squeezing(CVOperation):
     num_params = 2
     par_domain = "R"
     grad_method = "A"
+    label = "S"
 
     shift = 0.1
     multiplier = 0.5 / math.sinh(shift)
@@ -191,6 +193,7 @@ class Displacement(CVOperation):
     num_params = 2
     par_domain = "R"
     grad_method = "A"
+    label = "D"
 
     shift = 0.1
     multiplier = 0.5 / shift
@@ -246,6 +249,7 @@ class Beamsplitter(CVOperation):
     num_wires = 2
     par_domain = "R"
     grad_method = "A"
+    label = "BS"
 
     # For the beamsplitter, both parameters are rotation-like
     @staticmethod
@@ -300,6 +304,7 @@ class TwoModeSqueezing(CVOperation):
     num_params = 2
     num_wires = 2
     par_domain = "R"
+    label = "S"
 
     grad_method = "A"
 
@@ -356,6 +361,7 @@ class QuadraticPhase(CVOperation):
     num_params = 1
     num_wires = 1
     par_domain = "R"
+    label = "P"
 
     grad_method = "A"
 
@@ -404,6 +410,7 @@ class ControlledAddition(CVOperation):
     num_wires = 2
     num_params = 1
     par_domain = "R"
+    label = "X"
 
     grad_method = "A"
 
@@ -456,6 +463,7 @@ class ControlledPhase(CVOperation):
     num_wires = 2
     num_params = 1
     par_domain = "R"
+    label = "Z"
 
     grad_method = "A"
 
@@ -548,6 +556,7 @@ class CubicPhase(CVOperation):
     num_wires = 1
     par_domain = "R"
     grad_method = "F"
+    label = "V"
 
     def adjoint(self, do_queue=False):
         return CubicPhase(-self.parameters[0], wires=self.wires, do_queue=do_queue)
@@ -719,6 +728,7 @@ class ThermalState(CVOperation):
     num_params = 1
     par_domain = "R"
     grad_method = "F"
+    label = "Thermal"
 
 
 class GaussianState(CVOperation):
@@ -740,6 +750,7 @@ class GaussianState(CVOperation):
     num_params = 2
     par_domain = "A"
     grad_method = "F"
+    label = "Gaussian"
 
 
 class FockState(CVOperation):
@@ -908,6 +919,7 @@ class NumberOperator(CVObservable):
     num_wires = 1
     num_params = 0
     par_domain = None
+    label = "n"
 
     ev_order = 2
 
@@ -958,6 +970,7 @@ class TensorN(CVObservable):
     num_params = 0
     par_domain = None
     ev_order = None
+    label = "n"
 
     def __new__(cls, *params, wires=None, do_queue=True):
         # Custom definition for __new__ needed such that a NumberOperator can
@@ -995,6 +1008,7 @@ class X(CVObservable):
     num_wires = 1
     num_params = 0
     par_domain = None
+    label = "x"
 
     ev_order = 1
 
@@ -1026,6 +1040,7 @@ class P(CVObservable):
     num_wires = 1
     num_params = 0
     par_domain = None
+    label = "p̂"
 
     ev_order = 1
 
@@ -1059,6 +1074,7 @@ class QuadOperator(CVObservable):
     num_wires = 1
     num_params = 1
     par_domain = "R"
+    label = "xϕ"
 
     grad_method = "A"
     ev_order = 1
@@ -1153,6 +1169,8 @@ class FockStateProjector(CVObservable):
     num_wires = AnyWires
     num_params = 1
     par_domain = "A"
+    label = "|n⟩⟨n|"
+
 
     grad_method = None
     ev_order = None

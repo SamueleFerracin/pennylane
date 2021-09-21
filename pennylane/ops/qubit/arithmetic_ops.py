@@ -197,6 +197,7 @@ class QubitSum(Operation):
             [0, 0, 0, 0, 0, 0, 0, 1],
         ]
     )
+    label = "+"
 
     @classmethod
     def _matrix(cls, *params):

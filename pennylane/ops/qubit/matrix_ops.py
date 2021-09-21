@@ -43,6 +43,7 @@ class QubitUnitary(Operation):
     num_wires = AnyWires
     par_domain = "A"
     grad_method = None
+    label = "U"
 
     def __init__(self, *params, wires, do_queue=True):
         wires = Wires(wires)
@@ -143,6 +144,7 @@ class ControlledQubitUnitary(QubitUnitary):
     num_wires = AnyWires
     par_domain = "A"
     grad_method = None
+    label = "U"
 
     def __init__(
         self,
@@ -248,6 +250,7 @@ class DiagonalQubitUnitary(DiagonalOperation):
     num_wires = AnyWires
     par_domain = "A"
     grad_method = None
+    label = "U"
 
     @classmethod
     def _eigvals(cls, *params):

@@ -48,6 +48,7 @@ class Hadamard(Observable, Operation):
     is_self_inverse = True
     eigvals = pauli_eigs(1)
     matrix = np.array([[INV_SQRT2, INV_SQRT2], [INV_SQRT2, -INV_SQRT2]])
+    label = "H"
 
     @classmethod
     def _matrix(cls, *params):
@@ -111,6 +112,7 @@ class PauliX(Observable, Operation):
     basis = "X"
     eigvals = pauli_eigs(1)
     matrix = np.array([[0, 1], [1, 0]])
+    label = "X"
 
     @classmethod
     def _matrix(cls, *params):
@@ -175,6 +177,7 @@ class PauliY(Observable, Operation):
     basis = "Y"
     eigvals = pauli_eigs(1)
     matrix = np.array([[0, -1j], [1j, 0]])
+    label = "Y"
 
     @classmethod
     def _matrix(cls, *params):
@@ -245,6 +248,7 @@ class PauliZ(Observable, DiagonalOperation):
     basis = "Z"
     eigvals = pauli_eigs(1)
     matrix = np.array([[1, 0], [0, -1]])
+    label = "Z"
 
     @classmethod
     def _matrix(cls, *params):
@@ -386,6 +390,7 @@ class SX(Operation):
     basis = "X"
     op_matrix = 0.5 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
     op_eigvals = np.array([1, 1j])
+    label = "√X"
 
     @classmethod
     def _matrix(cls, *params):
@@ -485,6 +490,7 @@ class CZ(DiagonalOperation):
     basis = "Z"
     eigvals = np.array([1, 1, 1, -1])
     matrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]])
+    label = "Z"
 
     @classmethod
     def _matrix(cls, *params):
@@ -536,6 +542,7 @@ class CY(Operation):
             [0, 0, 1j, 0],
         ]
     )
+    label = "Y"
 
     @classmethod
     def _matrix(cls, *params):
@@ -759,6 +766,7 @@ class CSWAP(Operation):
             [0, 0, 0, 0, 0, 0, 0, 1],
         ]
     )
+
 
     @classmethod
     def _matrix(cls, *params):

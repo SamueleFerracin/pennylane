@@ -17,8 +17,6 @@ import pennylane as qml
 from pennylane.math import shape
 from pennylane.operation import ObservableReturnTypes
 
-from .gate_label_data import label_dict
-
 
 def gate_label(op, include_parameters=False, decimal_places=2):
     """Produces a label for a given gate.
@@ -33,7 +31,7 @@ def gate_label(op, include_parameters=False, decimal_places=2):
     Returns:
         str
     """
-    base = label_dict.get(op.base_name, op.base_name)
+    base = op.label
     
     if op.inverse:
         end = "⁻¹"
@@ -67,20 +65,7 @@ def measurement_label(obs):
         str
     """
     if obs.return_type == ObservableReturnTypes.Expectation:
-        if isinstance(obs.obs, qml.Projector):
-            state = obs.obs.parameters[0]
-            state_str = "".join([f"{int(i)}" for i in state])
-            return f"|{state_str}⟩⟨{state_str}|"
-
-        if isinstance(obs.obs, qml.FockStateProjector):
-            n = obs.obs.data[0]
-            return f"|{n}⟩⟨{n}|"
-
-        return "⟨n⟩"
-
-        name = label_dict.get(obs.obs.name, obs.obs.name)
-        return f"⟨{name}⟩"
+        return f"⟨{obs.obs.label}⟩"
     if obs.return_type == ObservableReturnTypes.Variance:
-        name = label_dict.get(obs.obs.name, obs.obs.name)
-        return f"Var[{name}]"
+        return f"Var[{obs.obs.label}]"
     return obs.return_type.name

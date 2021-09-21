@@ -162,6 +162,7 @@ class Hamiltonian(Observable):
     num_params = 1
     par_domain = "A"
     grad_method = "A"  # supports analytic gradients
+    label = "H"
 
     def __init__(
         self,
