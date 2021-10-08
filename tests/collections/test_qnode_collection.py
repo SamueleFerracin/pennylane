@@ -73,7 +73,7 @@ class TestConstruction:
             pytest.skip("Skipped, no tf support")
 
         qc = qml.QNodeCollection()
-        assert qc.interface is None
+        assert qc.interface == qml.interface.none
 
         def circuit(x):
             qml.RX(x, wires=0)
@@ -82,7 +82,7 @@ class TestConstruction:
         dev = qml.device("default.qubit", wires=1)
         qnodes = [qml.QNode(circuit, dev, interface=interface) for i in range(4)]
         qc = qml.QNodeCollection(qnodes)
-        assert qc.interface == interface
+        assert qc.interface == qml.interface[interface]
 
     def test_append_qnode(self):
         """Test that a QNode is correctly appended"""

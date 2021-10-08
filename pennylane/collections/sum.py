@@ -17,7 +17,7 @@ Contains the sum function, for summing QNode collections.
 # pylint: disable=too-many-arguments,import-outside-toplevel
 
 from .apply import apply
-
+from pennylane import interface as interface_enum
 
 def sum(x):
     """Lazily sum the constituent QNodes of a :class:`QNodeCollection`.
@@ -49,22 +49,22 @@ def sum(x):
     tensor(0.9177, dtype=torch.float64)
     """
     if hasattr(x, "interface") and x.interface is not None:
-        if x.interface == "tf":
+        if x.interface == interface_enum.tf:
             import tensorflow as tf
 
             return apply(tf.reduce_sum, x)
 
-        if x.interface == "torch":
+        if x.interface == interface_enum.torch:
             import torch
 
             return apply(torch.sum, x)
 
-        if x.interface in ("autograd", "numpy"):
+        if x.interface in {interface_enum.autograd, interface_enum.none}:
             from autograd import numpy as np
 
             return apply(np.sum, x)
 
-        if x.interface == "jax":
+        if x.interface == interface_enum.jax:
             import jax.numpy as jnp
 
             return apply(jnp.sum, x)

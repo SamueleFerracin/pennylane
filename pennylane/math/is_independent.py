@@ -348,26 +348,24 @@ def is_independent(
     have constant output.
     """
 
-    # pylint:disable=too-many-arguments
-
-    if not interface in {"autograd", "jax", "tf", "torch", "tensorflow"}:
+    if isinstance(interface, str) and not interface in {"autograd", "jax", "tf", "torch", "tensorflow"}:
         raise ValueError(f"Unknown interface: {interface}")
 
     kwargs = kwargs or {}
 
-    if interface == "autograd":
+    if interface == "autograd" or interface.value == "autograd":
         if not _autograd_is_indep_analytic(func, *args, **kwargs):
             return False
 
-    if interface == "jax":
+    if interface == "jax" or interface.value == "jax":
         if not _jax_is_indep_analytic(func, *args, **kwargs):
             return False
 
-    if interface in ("tf", "tensorflow"):
+    if interface in ("tf", "tensorflow") or interface.value == "tf":
         if not _tf_is_indep_analytic(func, *args, **kwargs):
             return False
 
-    if interface == "torch":
+    if interface == "torch" or interface.value == "torch":
         warnings.warn(
             "The function is_independent is only available numerically for the PyTorch interface."
             " Make sure that sampling positions and evaluating the function at these positions"

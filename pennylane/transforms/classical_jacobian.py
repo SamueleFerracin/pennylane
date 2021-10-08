@@ -147,7 +147,7 @@ def classical_jacobian(qnode, argnum=None, expand_fn=None):
 
         return qml.math.stack(tape.get_parameters(trainable_only=trainable_only))
 
-    if qnode.interface == "autograd":
+    if qnode.interface == qml.interface.autograd:
 
         def _jacobian(*args, **kwargs):
             if argnum is None:
@@ -165,7 +165,7 @@ def classical_jacobian(qnode, argnum=None, expand_fn=None):
 
         return _jacobian
 
-    if qnode.interface == "torch":
+    if qnode.interface == qml.interface.torch:
         import torch
 
         def _jacobian(*args, **kwargs):  # pylint: disable=unused-argument
@@ -179,7 +179,7 @@ def classical_jacobian(qnode, argnum=None, expand_fn=None):
 
         return _jacobian
 
-    if qnode.interface == "jax":
+    if qnode.interface == qml.interface.jax:
         import jax
 
         argnum = 0 if argnum is None else argnum
@@ -190,7 +190,7 @@ def classical_jacobian(qnode, argnum=None, expand_fn=None):
 
         return _jacobian
 
-    if qnode.interface == "tf":
+    if qnode.interface == qml.interface.tf:
         import tensorflow as tf
 
         def _jacobian(*args, **kwargs):

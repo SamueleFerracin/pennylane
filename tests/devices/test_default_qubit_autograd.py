@@ -379,7 +379,7 @@ class TestHighLevelIntegration:
         obs_list = [qml.PauliX(0) @ qml.PauliY(1), qml.PauliZ(0), qml.PauliZ(0) @ qml.PauliZ(1)]
         qnodes = qml.map(ansatz, obs_list, dev, interface="autograd")
 
-        assert qnodes.interface == "autograd"
+        assert qnodes.interface == qml.interface.autograd
 
         weights = np.array([0.1, 0.2], requires_grad=True)
 

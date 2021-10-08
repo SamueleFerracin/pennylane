@@ -130,7 +130,7 @@ class ExpvalCost:
         ansatz,
         hamiltonian,
         device,
-        interface="autograd",
+        interface=qml.interface.autograd,
         diff_method="best",
         optimize=False,
         **kwargs,

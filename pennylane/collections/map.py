@@ -31,7 +31,7 @@ def map(
     observables,
     device,
     measure="expval",
-    interface="autograd",
+    interface=qml.interface.autograd,
     diff_method="best",
     **kwargs
 ):

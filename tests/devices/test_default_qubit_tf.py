@@ -1428,7 +1428,7 @@ class TestHighLevelIntegration:
         obs_list = [qml.PauliX(0) @ qml.PauliY(1), qml.PauliZ(0), qml.PauliZ(0) @ qml.PauliZ(1)]
         qnodes = qml.map(qml.templates.StronglyEntanglingLayers, obs_list, dev, interface="tf")
 
-        assert qnodes.interface == "tf"
+        assert qnodes.interface == qml.interface.tf
 
         weights = tf.Variable(
             np.random.random(qml.templates.StronglyEntanglingLayers.shape(n_layers=2, n_wires=2))

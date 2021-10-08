@@ -141,12 +141,7 @@ def dot(x, y):
     elif hasattr(y, "interface"):
         interface = y.interface
         fn, x = _get_dot_func(interface, x)
-        def func(params, **kwargs):
-            print(x)
-            print(y(params, **kwargs))
-            return fn(x, y(params, **kwargs))
-        
-        #func = lambda params, **kwargs: fn(x, y(params, **kwargs))
+        func = lambda params, **kwargs: fn(x, y(params, **kwargs))
 
     else:
         raise ValueError("At least one argument must be a QNodeCollection")

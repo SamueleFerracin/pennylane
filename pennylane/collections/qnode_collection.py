@@ -17,6 +17,7 @@ Contains the QNodeCollection class.
 # pylint: disable=too-many-arguments,import-outside-toplevel
 from collections.abc import Sequence
 import warnings
+from pennylane import interface as interface_enum
 
 
 class QNodeCollection(Sequence):
@@ -166,7 +167,7 @@ class QNodeCollection(Sequence):
     def interface(self):
         """str, None: automatic differentiation interface used by the collection, if any"""
         if not self.qnodes:
-            return None
+            return interface_enum.none
 
         return self.qnodes[0].interface
 
@@ -215,7 +216,7 @@ class QNodeCollection(Sequence):
                     "\n\npip install dask[delayed]"
                 ) from e
 
-            if self.interface == "tf":
+            if self.interface == interface_enum.tf:
                 warnings.warn(
                     "Parallel execution of QNodeCollections is "
                     "an experimental feature, and currently doesn't "
@@ -251,22 +252,22 @@ class QNodeCollection(Sequence):
             list or array or torch.Tensor or tf.Tensor: the converted
             and stacked results.
         """
-        if interface == "tf":
+        if interface == interface_enum.tf:
             import tensorflow as tf
 
             return tf.stack(results)
 
-        if interface == "torch":
+        if interface == interface_enum.torch:
             import torch
 
             return torch.stack(results, dim=0)
 
-        if interface == "jax":
+        if interface == interface_enum.jax:
             import jax.numpy as jnp
 
             return jnp.stack(results)
 
-        if interface in ("autograd", "numpy"):
+        if interface == interface_enum.autograd:
             from autograd import numpy as np
 
             return np.stack(results)

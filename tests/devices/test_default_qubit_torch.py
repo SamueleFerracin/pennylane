@@ -1516,7 +1516,7 @@ class TestHighLevelIntegration:
         obs_list = [qml.PauliX(0) @ qml.PauliY(1), qml.PauliZ(0), qml.PauliZ(0) @ qml.PauliZ(1)]
         qnodes = qml.map(qml.templates.StronglyEntanglingLayers, obs_list, dev, interface="torch")
 
-        assert qnodes.interface == "torch"
+        assert qnodes.interface == qml.interface.torch
 
         torch.manual_seed(42)
         weights = torch.rand(

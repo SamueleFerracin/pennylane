@@ -944,7 +944,7 @@ class TestAutogradInterface:
         dev = mock_device(wires=3)
         circuits = qml.map(ansatz, observables, device=dev, interface=interface)
 
-        assert all(c.interface == "autograd" for c in circuits)
+        assert all(c.interface == qml.interface.autograd for c in circuits)
 
         res = [c(params) for c in circuits]
         assert all(isinstance(val, (np.ndarray, float)) for val in res)
@@ -987,7 +987,7 @@ class TestTorchInterface:
         """Test that QNodes have the torch interface"""
         dev = mock_device(wires=3)
         circuits = qml.map(ansatz, observables, device=dev, interface="torch")
-        assert all(c.interface == "torch" for c in circuits)
+        assert all(c.interface == qml.interface.torch for c in circuits)
 
         res = [c(params) for c in circuits]
         assert all(isinstance(val, torch.Tensor) for val in res)
@@ -1034,7 +1034,7 @@ class TestTFInterface:
 
         dev = mock_device(wires=3)
         circuits = qml.map(ansatz, observables, device=dev, interface="tf")
-        assert all(c.interface == "tf" for c in circuits)
+        assert all(c.interface == qml.interface.tf for c in circuits)
 
         res = [c(params) for c in circuits]
         assert all(isinstance(val, (Variable, tf.Tensor)) for val in res)
