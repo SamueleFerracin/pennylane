@@ -16,6 +16,7 @@ Contains functions to implement the dot product between QNode collections
 """
 # pylint: disable=too-many-arguments,import-outside-toplevel
 
+from pennylane import interface as interface_enum
 
 def _get_dot_func(interface, x=None):
     """Helper function for :func:`~.dot` to determine
@@ -32,7 +33,7 @@ def _get_dot_func(interface, x=None):
         containing the required dot product function, as well as the
         (potentially converted) sequence.
     """
-    if interface == "tf":
+    if interface == interface_enum.tf:
         import tensorflow as tf
 
         if x is not None and not isinstance(x, (tf.Tensor, tf.Variable)):
@@ -40,7 +41,7 @@ def _get_dot_func(interface, x=None):
 
         return lambda a, b: tf.tensordot(a, b, 1), x
 
-    if interface == "torch":
+    if interface == interface_enum.torch:
         import torch
 
         if x is not None and not isinstance(x, torch.Tensor):
@@ -48,7 +49,7 @@ def _get_dot_func(interface, x=None):
 
         return torch.matmul, x
 
-    if interface in ("autograd", "numpy"):
+    if interface == interface_enum.autograd:
         from autograd import numpy as np
 
         if x is not None and not isinstance(x, np.ndarray):
@@ -56,7 +57,7 @@ def _get_dot_func(interface, x=None):
 
         return np.dot, x
 
-    if interface == "jax":
+    if interface == interface_enum.jax:
         import jax.numpy as jnp
 
         if x is not None and not isinstance(x, jnp.ndarray):
@@ -64,7 +65,7 @@ def _get_dot_func(interface, x=None):
 
         return jnp.dot, x
 
-    if interface is None:
+    if interface == interface_enum.none:
         import numpy as np
 
         return np.dot, x
@@ -140,7 +141,12 @@ def dot(x, y):
     elif hasattr(y, "interface"):
         interface = y.interface
         fn, x = _get_dot_func(interface, x)
-        func = lambda params, **kwargs: fn(x, y(params, **kwargs))
+        def func(params, **kwargs):
+            print(x)
+            print(y(params, **kwargs))
+            return fn(x, y(params, **kwargs))
+        
+        #func = lambda params, **kwargs: fn(x, y(params, **kwargs))
 
     else:
         raise ValueError("At least one argument must be a QNodeCollection")

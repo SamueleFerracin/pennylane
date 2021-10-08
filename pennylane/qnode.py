@@ -149,7 +149,7 @@ class QNode:
         self,
         func,
         device,
-        interface="autograd",
+        interface=qml.interface.autograd,
         diff_method="best",
         mutable=True,
         max_expansion=10,
@@ -168,11 +168,15 @@ class QNode:
             diff_method = "best"
             interface = None
 
-        if interface is not None and interface not in self.INTERFACE_MAP:
-            raise qml.QuantumFunctionError(
-                f"Unknown interface {interface}. Interface must be "
-                f"one of {list(self.INTERFACE_MAP.keys())}."
-            )
+        if isinstance(interface, str):
+            try:
+                interface = qml.interface[interface]
+            except KeyError:
+                raise qml.QuantumFunctionError(
+                    f"Unknown interface {interface}. Interface must be "
+                    f" one of {[obj.value for obj in qml.interface]}")
+        elif interface is None:
+            interface = qml.interface.none
 
         if not isinstance(device, Device):
             raise qml.QuantumFunctionError(
@@ -237,7 +241,7 @@ class QNode:
         return detail.format(
             self.device.num_wires,
             self.device.short_name,
-            self.interface,
+            self.interface.value,
             self.diff_method,
         )
 
@@ -262,7 +266,7 @@ class QNode:
 
         Args:
             device (.Device): PennyLane device
-            interface (str): name of the requested interface
+            interface (qml.interface): name of the requested interface
             diff_method (str): The requested method of differentiation. One of
                 ``"best"``, ``"backprop"``, ``"reversible"``, ``"adjoint"``, ``"device"``,
                 ``"parameter-shift"``, or ``"finite-diff"``.
@@ -322,7 +326,7 @@ class QNode:
 
         Args:
             device (.Device): PennyLane device
-            interface (str): name of the requested interface
+            interface (qml.interface): name of the requested interface
 
         Returns:
             tuple[.JacobianTape, str, .Device, dict[str, str]]: Tuple containing the compatible
@@ -383,7 +387,7 @@ class QNode:
         if backprop_interface is not None:
             # device supports backpropagation natively
 
-            if interface == backprop_interface:
+            if interface.value == backprop_interface:
                 return JacobianTape, interface, device, {"method": "backprop"}
 
             raise qml.QuantumFunctionError(
@@ -395,11 +399,11 @@ class QNode:
 
             # device is analytic and has child devices that support backpropagation natively
 
-            if interface in backprop_devices:
+            if interface.value in backprop_devices:
                 # TODO: need a better way of passing existing device init options
                 # to a new device?
                 device = qml.device(
-                    backprop_devices[interface],
+                    backprop_devices[interface.value],
                     wires=device.wires,
                     shots=device.shots,
                 )
@@ -422,7 +426,7 @@ class QNode:
 
         Args:
             device (.Device): PennyLane device
-            interface (str): name of the requested interface
+            interface (qml.interface): name of the requested interface
 
         Returns:
             tuple[.JacobianTape, str, .Device, dict[str, str]]: Tuple containing the compatible
@@ -491,7 +495,7 @@ class QNode:
         jac_options = {"method": "device", "jacobian_method": "adjoint_jacobian"}
         # reuse the forward pass
         # torch and tensorflow can cache the state
-        if interface in {"autograd", "jax"}:
+        if interface.value in {qml.interface.autograd, qml.interface.jax}:
             jac_options["device_pd_options"] = {"use_device_state": True}
 
         return (
@@ -563,7 +567,7 @@ class QNode:
     def construct(self, args, kwargs):
         """Call the quantum function with a tape context, ensuring the operations get queued."""
 
-        if self.interface == "autograd":
+        if self.interface == qml.interface.autograd:
             # HOTFIX: to maintain compatibility with core, here we treat
             # all inputs that do not explicitly specify `requires_grad=False`
             # as trainable. This should be removed at some point, forcing users
@@ -574,7 +578,6 @@ class QNode:
             ]
 
         self.qtape = self._tape()
-
         with self.qtape:
             self.qfunc_output = self.func(*args, **kwargs)
 
@@ -599,15 +602,14 @@ class QNode:
             and "passthru_interface" in self.device.capabilities()
         )
         backprop_diff = explicit_backprop or best_and_passthru
-        if not backprop_diff and self.interface is not None:
+        if not backprop_diff and self.interface != qml.interface.none:
             # pylint: disable=protected-access
-            if state_returns and self.interface in ["torch", "tf"]:
+            if state_returns and self.interface in {qml.interface.torch, qml.interface.tf}:
                 # The state is complex and we need to indicate this in the to_torch or to_tf
                 # functions
                 self.INTERFACE_MAP[self.interface](self, dtype=np.complex128)
             else:
                 self.INTERFACE_MAP[self.interface](self)
-
         if not all(ret == m for ret, m in zip(measurement_processes, self.qtape.measurements)):
             raise qml.QuantumFunctionError(
                 "All measurements must be returned in the order they are measured."
@@ -916,7 +918,7 @@ class QNode:
             import tensorflow as tf
             from pennylane.interfaces.tf import TFInterface
 
-            if self.interface != "tf" and self.interface is not None:
+            if self.interface != qml.interface.tf and self.interface != qml.interface.none:
                 # Since the interface is changing, need to re-validate the tape class.
                 # if method was changed from "best", set it back to best
                 if self.diff_method_change:
@@ -924,14 +926,14 @@ class QNode:
                 else:
                     diff_method = self.diff_method
                 self._tape, interface, self.device, diff_options = self.get_tape(
-                    self._original_device, "tf", diff_method
+                    self._original_device, qml.interface.tf, diff_method
                 )
                 if self.diff_method_change:
                     self.diff_method = self._get_best_diff_method(diff_options)
                 self.interface = interface
                 self.diff_options.update(diff_options)
             else:
-                self.interface = "tf"
+                self.interface = qml.interface.tf
 
             if not isinstance(self.dtype, tf.DType):
                 self.dtype = None
@@ -962,7 +964,7 @@ class QNode:
             import torch
             from pennylane.interfaces.torch import TorchInterface
 
-            if self.interface != "torch" and self.interface is not None:
+            if self.interface != qml.interface.torch and self.interface != qml.interface.none:
                 # Since the interface is changing, need to re-validate the tape class.
                 # if method was changed from "best", set it back to best
                 if self.diff_method_change:
@@ -970,14 +972,14 @@ class QNode:
                 else:
                     diff_method = self.diff_method
                 self._tape, interface, self.device, diff_options = self.get_tape(
-                    self._original_device, "torch", diff_method
+                    self._original_device, qml.interface.torch, diff_method
                 )
                 if self.diff_method_change:
                     self.diff_method = self._get_best_diff_method(diff_options)
                 self.interface = interface
                 self.diff_options.update(diff_options)
             else:
-                self.interface = "torch"
+                self.interface = qml.interface.torch
 
             if not isinstance(self.dtype, torch.dtype):
                 self.dtype = None
@@ -1000,7 +1002,7 @@ class QNode:
         """Apply the Autograd interface to the internal quantum tape."""
         self.dtype = AutogradInterface.dtype
 
-        if self.interface != "autograd" and self.interface is not None:
+        if self.interface != qml.interface.autograd and self.interface != qml.interface.none:
             # Since the interface is changing, need to re-validate the tape class.
             # if method was changed from "best", set it back to best
             if self.diff_method_change:
@@ -1008,14 +1010,14 @@ class QNode:
             else:
                 diff_method = self.diff_method
             self._tape, interface, self.device, diff_options = self.get_tape(
-                self._original_device, "autograd", diff_method
+                self._original_device, qml.interface.autograd, diff_method
             )
             if self.diff_method_change:
                 self.diff_method = self._get_best_diff_method(diff_options)
             self.interface = interface
             self.diff_options.update(diff_options)
         else:
-            self.interface = "autograd"
+            self.interface = qml.interface.autograd
 
         if self.qtape is not None:
             AutogradInterface.apply(self.qtape)
@@ -1034,7 +1036,7 @@ class QNode:
         try:
             from pennylane.interfaces.jax import JAXInterface
 
-            if self.interface != "jax" and self.interface is not None:
+            if self.interface != qml.interface.jax and self.interface != qml.interface.none:
                 # Since the interface is changing, need to re-validate the tape class.
                 # if method was changed from "best", set it back to best
                 if self.diff_method_change:
@@ -1042,14 +1044,14 @@ class QNode:
                 else:
                     diff_method = self.diff_method
                 self._tape, interface, self.device, diff_options = self.get_tape(
-                    self._original_device, "jax", diff_method
+                    self._original_device, qml.interface.jax, diff_method
                 )
                 if self.diff_method_change:
                     self.diff_method = self._get_best_diff_method(diff_options)
                 self.interface = interface
                 self.diff_options.update(diff_options)
             else:
-                self.interface = "jax"
+                self.interface = qml.interface.jax
 
             if self.qtape is not None:
                 JAXInterface.apply(self.qtape)
@@ -1061,17 +1063,17 @@ class QNode:
             ) from e
 
     INTERFACE_MAP = {
-        "autograd": to_autograd,
-        "torch": to_torch,
-        "tf": to_tf,
-        "jax": to_jax,
+        qml.interface.autograd: to_autograd,
+        qml.interface.torch: to_torch,
+        qml.interface.tf: to_tf,
+        qml.interface.jax: to_jax,
     }
 
 
 # pylint:disable=too-many-arguments
 def qnode(
     device,
-    interface="autograd",
+    interface=qml.interface.autograd,
     diff_method="best",
     mutable=True,
     max_expansion=10,
