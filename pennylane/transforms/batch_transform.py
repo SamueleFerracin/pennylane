@@ -279,10 +279,13 @@ class batch_transform:
                 "taken by the device."
             )
 
+        def _construct(args, kwargs):
+            qnode.construct(args, kwargs)
+            return self.construct(qnode.qtape, *targs, **tkwargs)
+
         def _wrapper(*args, **kwargs):
             shots = kwargs.pop("shots", False)
-            qnode.construct(args, kwargs)
-            tapes, processing_fn = self.construct(qnode.qtape, *targs, **tkwargs)
+            tapes, processing_fn = _construct(args, kwargs)
 
             interface = qnode.interface
             execute_kwargs = getattr(qnode, "execute_kwargs", {})
@@ -313,6 +316,7 @@ class batch_transform:
 
             return processing_fn(res)
 
+        self._construct = _construct
         return _wrapper
 
     def __call__(self, qnode, *targs, **tkwargs):
@@ -354,6 +358,7 @@ class batch_transform:
         wrapper.tape_fn = functools.partial(self.transform_fn, *targs, **tkwargs)
         wrapper.expand_fn = self.expand_fn
         wrapper.differentiable = self.differentiable
+        wrapper.construct = self._construct
         return wrapper
 
     def construct(self, tape, *args, **kwargs):
