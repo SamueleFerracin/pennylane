@@ -355,12 +355,6 @@ class batch_transform:
             def wrapper(qnode):
                 _wrapper = self.qnode_wrapper(qnode, targs, tkwargs)
                 _wrapper = functools.wraps(qnode)(_wrapper)
-
-                def _construct(args, kwargs):
-                    qnode.construct(args, kwargs)
-                    return self.construct(qnode.qtape, *targs, **tkwargs)
-
-                _wrapper.construct = _construct
                 return _wrapper
 
         wrapper.tape_fn = functools.partial(self.transform_fn, *targs, **tkwargs)
