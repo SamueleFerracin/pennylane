@@ -90,17 +90,16 @@ def create_expand_fn(depth, stop_at=None, device=None, docstring=None):
 
             if depth_only:
                 tape = tape.expand(depth=_depth)
-                _update_trainable_params(tape)
 
             else:
                 if stop_at is not None:
                     if not all(stop_at(op) for op in tape.operations):
                         tape = tape.expand(depth=_depth, stop_at=stop_at)
-                        _update_trainable_params(tape)
 
                 if device is not None:
                     tape = device.expand_fn(tape, max_expansion=_depth)
-                    _update_trainable_params(tape)
+
+            _update_trainable_params(tape)
 
         return tape
 
@@ -110,7 +109,29 @@ def create_expand_fn(depth, stop_at=None, device=None, docstring=None):
     return expand_fn
 
 
-expand_multipar = create_expand_fn(depth=10, stop_at=is_measurement | has_nopar | has_gen)
+_expand_multipar_doc = """Expand out a tape so that all its parametrized
+operations have a single parameter.
+
+This is achieved by decomposing all parametrized operations that do not have
+a generator, up to maximum depth ``depth``.
+For a sufficient ``depth``, it should always be possible to obtain a tape containing
+only single-parameter operations.
+
+Args:
+    tape (.QuantumTape): the input tape to expand
+    depth (int) : the maximum expansion depth
+    **kwargs: additional keyword arguments are ignored
+
+Returns:
+    .QuantumTape: the expanded tape
+"""
+
+expand_multipar = create_expand_fn(
+    depth=10,
+    stop_at=is_measurement | has_nopar | has_gen,
+    docstring=_expand_multipar_doc,
+)
+
 
 _expand_nonunitary_gen_doc = """Expand out a tape so that all its parametrized
 operations have a unitary generator.
