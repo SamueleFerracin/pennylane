@@ -279,13 +279,10 @@ class batch_transform:
                 "taken by the device."
             )
 
-        def _construct(args, kwargs):
-            qnode.construct(args, kwargs)
-            return self.construct(qnode.qtape, *targs, **tkwargs)
-
         def _wrapper(*args, **kwargs):
             shots = kwargs.pop("shots", False)
-            tapes, processing_fn = _construct(args, kwargs)
+            qnode.construct(args, kwargs)
+            tapes, processing_fn = self.construct(qnode.qtape, *targs, **tkwargs)
 
             interface = qnode.interface
             execute_kwargs = getattr(qnode, "execute_kwargs", {})
@@ -316,7 +313,6 @@ class batch_transform:
 
             return processing_fn(res)
 
-        self._construct = _construct
         return _wrapper
 
     def __call__(self, qnode, *targs, **tkwargs):
@@ -331,6 +327,12 @@ class batch_transform:
             # result = some_transform(qnode, *transform_args)(*qnode_args)
             wrapper = self.qnode_wrapper(qnode, targs, tkwargs)
             wrapper = functools.wraps(qnode)(wrapper)
+
+            def _construct(args, kwargs):
+                qnode.construct(args, kwargs)
+                return self.construct(qnode.qtape, *targs, **tkwargs)
+
+            wrapper.construct = _construct
 
         else:
             # Input is not a QNode nor a quantum tape.
@@ -353,12 +355,17 @@ class batch_transform:
             def wrapper(qnode):
                 _wrapper = self.qnode_wrapper(qnode, targs, tkwargs)
                 _wrapper = functools.wraps(qnode)(_wrapper)
+
+                def _construct(args, kwargs):
+                    qnode.construct(args, kwargs)
+                    return self.construct(qnode.qtape, *targs, **tkwargs)
+
+                _wrapper.construct = _construct
                 return _wrapper
 
         wrapper.tape_fn = functools.partial(self.transform_fn, *targs, **tkwargs)
         wrapper.expand_fn = self.expand_fn
         wrapper.differentiable = self.differentiable
-        wrapper.construct = self._construct
         return wrapper
 
     def construct(self, tape, *args, **kwargs):
