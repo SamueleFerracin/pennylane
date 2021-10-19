@@ -231,6 +231,7 @@ def test_invalid_wires():
     with pytest.raises(ValueError, match="contains wires not contained on the device"):
         qml.draw(circuit, wire_order=["q2", 5])()
 
+
 def test_draw_batch_transform():
     """Test that drawing a batch transform works correctly"""
     dev = qml.device("default.qubit", wires=1)
@@ -247,6 +248,7 @@ def test_draw_batch_transform():
     res = qml.draw(circuit)(0.6)
     expected = [" 0: ──H──RX(0.8)──┤ ⟨Z⟩ ", "", " 0: ──H──RX(0.4)──┤ ⟨Z⟩ ", ""]
     assert res == "\n".join(expected)
+
 
 def test_direct_qnode_integration():
     """Test that a QNode renders correctly."""
