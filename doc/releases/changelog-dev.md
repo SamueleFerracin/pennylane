@@ -368,7 +368,7 @@
 <h3>Improvements</h3>
 
 * It is now possible to draw QNodes that have been transformed by a 'batch transform'; that is,
-  a transform that maps a single QNode into multiple circuits under-the-hood. Examples of
+  a transform that maps a single QNode into multiple circuits under the hood. Examples of
   batch transforms include `@qml.metric_tensor` and `@qml.gradients`.
   [(#1762)](https://github.com/PennyLaneAI/pennylane/pull/1762)
 
